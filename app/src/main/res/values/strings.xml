@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FlipGank</string>
+    <string name="test_long_title">Kickstarter Android 源码开源啦！ 一个仿探探上传相片的widget，基于xmuSistone的demo, 提供gradle import，添加上传照片功能以及各种回调，api，方便使用</string>
+    <string name="test_normal_title">DragVideo，一种在播放视频时，可以任意拖拽视频的方案</string>
 </resources>

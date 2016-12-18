@@ -6,18 +6,20 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
+import com.yiyuanliu.flipgank.adapter.MainAdapter;
 import com.yiyuanliu.flipgank.data.DataManager;
 import com.yiyuanliu.flipgank.data.GankItem;
-import com.yiyuanliu.flipgank.data.GankResponse;
 import com.yiyuanliu.flipgank.view.FlipLayoutManager;
 import com.yiyuanliu.flipgank.view.MySnap;
-import com.yiyuanliu.flipgank.view.TestAdapter;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements DataManager.Listener {
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
+
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -27,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements DataManager.Liste
         setContentView(R.layout.activity_main);
 
         final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setAdapter(new TestAdapter());
         recyclerView.setLayoutManager(new FlipLayoutManager(this));
         MySnap mySnap = new MySnap();
         mySnap.attachToRecyclerView(recyclerView);
@@ -41,47 +42,26 @@ public class MainActivity extends AppCompatActivity implements DataManager.Liste
         });
 
         dataManager = DataManager.getInstance(this);
-        dataManager.addListener(this);
-        dataManager.loadNew();
-        autoLoad();
-    }
-
-    private void autoLoad() {
-        while (hasMore) {
-            List<GankItem> gankResponses = dataManager.loadMore(day);
-            if (gankResponses == null || gankResponses.size() == 0) {
-                hasMore = false;
-                Log.d(TAG, "no data");
-            } else {
-                Log.d(TAG, "load day " + gankResponses.get(0).day + " size " + gankResponses.size());
-                day = gankResponses.get(0).day;
-                hasMore = true;
-            }
-        }
+        dataManager.loadMore(lastLoad)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(onMore);
     }
 
     private DataManager dataManager;
-    private String day = null;
+    private String lastLoad = null;
     private boolean hasMore = true;
 
-    @Override
-    public void onMoreLoaded() {
-        Log.d(TAG, "onMoreLoaded");
-        hasMore = true;
-        autoLoad();
-    }
+    private Action1<List<GankItem>> onMore = new Action1<List<GankItem>>() {
+        @Override
+        public void call(List<GankItem> gankItemList) {
+            Log.d(TAG, "onMore " + gankItemList.size());
 
-    @Override
-    public void onNewLoaded() {
-        Log.d(TAG, "onNewLoaded");
-        hasMore = true;
-        day = null;
-        autoLoad();
-    }
-
-    @Override
-    public boolean onError(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        return false;
-    }
+            MainAdapter mainAdapter = new MainAdapter();
+            mainAdapter.addData(gankItemList);
+            final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+            recyclerView.setAdapter(mainAdapter);
+            recyclerView.setLayoutManager(new FlipLayoutManager(MainActivity.this));
+        }
+    };
 }

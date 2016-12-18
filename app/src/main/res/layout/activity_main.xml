@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.yiyuanliu.flipgank.MainActivity">
+
+    <android.support.design.widget.TabLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/colorAccent"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
@@ -17,6 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|bottom"
-        style="@style/Base.Widget.AppCompat.Button.Colored"/>
+        style="@style/Base.Widget.AppCompat.Button.Colored"
+        android:visibility="gone"/>
 
-</FrameLayout>
+</LinearLayout>

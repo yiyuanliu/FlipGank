@@ -6,9 +6,30 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor">@color/statusBarColor</item>
 
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+
+    <style name="ArticleItemLayout">
+        <item name="android:background">?selectableItemBackground</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="ArticleItemTitle">
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="ArticleItemType">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/textColorSecondary</item>
     </style>
 
 </resources>

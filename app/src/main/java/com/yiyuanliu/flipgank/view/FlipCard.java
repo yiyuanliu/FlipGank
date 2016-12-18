@@ -15,7 +15,7 @@ import android.widget.FrameLayout;
 public class FlipCard extends FrameLayout {
     private static final String TAG = "FlipCard";
 
-    private static final int SCRIM_COLOR = 0x44000000;
+    private static final int SCRIM_COLOR = 0x20000000;
 
     private int mScrimColor = SCRIM_COLOR;
     private Paint mScrimPaint;

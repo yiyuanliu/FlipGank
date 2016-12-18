@@ -77,18 +77,28 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
         fill(recycler, state);
     }
 
+    // 有 bug 继续改
     private void fill(RecyclerView.Recycler recycler, RecyclerView.State state) {
         final int count = state.getItemCount();
 
         checkPosition(state);
 
+        View primary = null;
+        View previous = null;
+        View next = null;
+
         for (int i = 0;i < count;i ++) {
             final View child = getChildAt(i);
             if (child != null) {
                 int position = getPosition(child);
-                if (position == mPosition
-                        || (position == mPosition - 1 && mPositionOffset < 0)
-                        || (position == mPosition + 1 && mPositionOffset > 0)){
+                if (position == mPosition) {
+                    primary = child;
+                    detachAndScrapView(child, recycler);
+                } else if (position == mPosition - 1 ) {
+                    previous = child;
+                    detachAndScrapView(child, recycler);
+                } else if (position == mPosition + 1) {
+                    next = child;
                     detachAndScrapView(child, recycler);
                 } else {
                     removeAndRecycleView(child, recycler);
@@ -96,17 +106,29 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
             }
         }
 
-        View secondary = null;
-        final View primary = recycler.getViewForPosition(mPosition);
-        final float percent = (float)mPositionOffset / getItemHeightInPositon();
+        primary = primary != null ? primary : recycler.getViewForPosition(mPosition);
+        if (next == null && mPosition + 1 > 0 && mPosition + 1 < state.getItemCount()) {
+            next = recycler.getViewForPosition(mPosition + 1);
+        }
+        if (previous == null && mPosition - 1 > 0 && mPosition - 1 < state.getItemCount()) {
+            previous = recycler.getViewForPosition(mPosition - 1);
+        }
 
-        final int next = mPositionOffset > 0 ? mPosition + 1 : mPosition - 1;
-        if (mPositionOffset != 0 && next >= 0 && next < state.getItemCount()) {
-            final View nextChild = recycler.getViewForPosition(next);
-            addView(nextChild);
-            measureChildWithMargins(nextChild, 0, 0);
-            secondary = nextChild;
+        View secondary = null;
+        final int nextPos = mPositionOffset > 0 ? mPosition + 1 : mPosition - 1;
+        if (mPositionOffset != 0 && nextPos >= 0 && nextPos < state.getItemCount()) {
+            secondary = mPositionOffset > 0 ? next : previous;
+            secondary = secondary != null ? secondary : recycler.getViewForPosition(nextPos);
+            addView(secondary);
+            measureChildWithMargins(secondary, 0, 0);
             layoutDecorated(secondary, 0, 0, getWidth(), getHeight());
+        }
+
+        if (secondary != previous && previous != null) {
+            recycler.recycleView(previous);
+        }
+        if (secondary != next && next != null) {
+            recycler.recycleView(next);
         }
 
         addView(primary);
@@ -114,6 +136,7 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
         layoutDecorated(primary, 0, 0, getWidth(), getHeight());
 
         if (primary instanceof FlipCard && (secondary == null || secondary instanceof FlipCard)) {
+            final float percent = (float)mPositionOffset / getItemHeightInPositon();
             if (secondary == null) {
                 ((FlipCard) primary).setState(true, 0);
             } else {

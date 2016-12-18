@@ -98,6 +98,7 @@ public class DataManager {
      * @param isNew 加载类型
      */
     private Observable<List<GankItem>> loadFromDay(final String day) {
+        Log.d(TAG, "loadFromDay: " + day);
         if (isOver(day)) {
             List<GankItem> emptyList = new ArrayList<>();
             return Observable.just(emptyList);
@@ -122,6 +123,8 @@ public class DataManager {
      * @return
      */
     private Observable<List<GankItem>> load(final String dayStr) {
+        Log.d(TAG, "load: " + dayStr);
+
         History history = checkLoadHistory(dayStr);
         if (history == null) {
             return loadFromGank(dayStr).map(new Func1<List<GankItem>, List<GankItem>>() {
@@ -141,7 +144,9 @@ public class DataManager {
      * @param dayStr 日期
      * @return 返回加载到的内容
      */
-    private Observable<List<GankItem>> loadFromGank(String dayStr) {
+    public Observable<List<GankItem>> loadFromGank(String dayStr) {
+        Log.d(TAG, "loadFromGank: " + dayStr);
+
         String[] parts = dayStr.split("/");
         int year = Integer.valueOf(parts[0]);
         int month = Integer.valueOf(parts[1]);
@@ -149,7 +154,8 @@ public class DataManager {
 
         if (api == null) {
             Retrofit.Builder builder = new Retrofit.Builder();
-            api = builder.baseUrl(Api.BASE_URL).addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+            api = builder.baseUrl(Api.BASE_URL)
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build().create(Api.class);
         }
@@ -178,9 +184,13 @@ public class DataManager {
      * @return 内容
      */
     private Observable<List<GankItem>> loadFormDb(final String day) {
+        Log.d(TAG, "loadFormDb: " + day);
+
         return Observable.create(new Observable.OnSubscribe<List<GankItem>>() {
             @Override
             public void call(Subscriber<? super List<GankItem>> subscriber) {
+                Log.d(TAG, "call: " + day);
+
                 final List<GankItem> gankItemList = new ArrayList<>();
 
                 Cursor cursor = sqLiteDatabase.query(GankDbHelper.Contract.TABLE_DATA, null,
@@ -195,12 +205,14 @@ public class DataManager {
                     int columnWho = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_WHO);
                     int columnType = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_CATEGORY);
                     int columnDay = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_DAY);
+                    int columnImage = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_IMAGE);
 
                     gankItem.desc = cursor.getString(columnDesc);
                     gankItem.url = cursor.getString(columnUrl);
                     gankItem.who = cursor.getString(columnWho);
                     gankItem.type = cursor.getString(columnType);
                     gankItem.day = cursor.getString(columnDay);
+                    gankItem.image = cursor.getString(columnImage);
                     gankItemList.add(gankItem);
 
                     hasMore = cursor.moveToNext();
@@ -210,6 +222,8 @@ public class DataManager {
                     subscriber.onNext(gankItemList);
                     subscriber.onCompleted();
                 }
+
+                Log.d(TAG, "call: end " + day);
             }
         });
 
@@ -275,7 +289,6 @@ public class DataManager {
             return;
         }
 
-
         for (GankItem gankItem: gankItemList) {
             ContentValues item = new ContentValues();
             item.put(GankDbHelper.Contract.COLUMN_ID, gankItem.id);
@@ -284,6 +297,7 @@ public class DataManager {
             item.put(GankDbHelper.Contract.COLUMN_DAY, day);
             item.put(GankDbHelper.Contract.COLUMN_URL, gankItem.url);
             item.put(GankDbHelper.Contract.COLUMN_WHO, gankItem.who);
+            item.put(GankDbHelper.Contract.COLUMN_IMAGE, gankItem.getImage());
             sqLiteDatabase.insert(GankDbHelper.Contract.TABLE_DATA, null, item);
         }
     }
