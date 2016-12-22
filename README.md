@@ -1,10 +1,18 @@
 # FlipGank
 
+[download apk](https://github.com/yiyuanliu/FlipGank/releases)
+
 一款 FlipBoard 翻页风格的 Gank.io 客户端，使用 RecyclerView 实现。
 
 <image src="./images/screenshot1.png" width="280"/>
 <image src="./images/screenshot3.png" width="280"/>
 <image src="./images/screenshot4.png" width="280"/>
+
+## Todo
+
+- 使用 Rxjava 2.0 
+- 添加图片下载
+- Readability
 
 ## 数据来源
 
@@ -17,6 +25,12 @@
 - [RxJava](https://github.com/ReactiveX/RxJava)
 - [Retrofit](https://square.github.io/retrofit/)
 - [Butterknife](http://jakewharton.github.io/butterknife/)
+
+## About me
+
+A student in Uestc. Android developer.
+
+Email: yiyuanliu1997@gmail.com
 
 ## 开源协议
 
