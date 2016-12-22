@@ -9,7 +9,6 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
 import com.yiyuanliu.flipgank.R;
 import com.yiyuanliu.flipgank.data.GankItem;
 
