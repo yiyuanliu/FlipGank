@@ -8,6 +8,7 @@ import android.icu.util.Calendar;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +54,28 @@ public class DataManager {
     private GankDbHelper gankDbHelper;
     private SQLiteDatabase sqLiteDatabase;
     private Api api;
+
+    public Observable<List<String>> loadCategory() {
+
+        return Observable.create(new Observable.OnSubscribe<List<String>>() {
+            @Override
+            public void call(Subscriber<? super List<String>> subscriber) {
+                Cursor cursor = sqLiteDatabase.query(GankDbHelper.Contract.TABLE_CATEGORY, null, null, null, null, null, null);
+                boolean hasMore = cursor.moveToFirst();
+                List<String> categorys = new ArrayList<>();
+                while (hasMore) {
+                    int categoryPos = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_CATEGORY);
+                    String category = cursor.getString(categoryPos);
+                    categorys.add(category);
+                    hasMore = cursor.moveToNext();
+                }
+
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onNext(categorys);
+                }
+            }
+        });
+    }
 
     /**
      * 从当前时间加载数据
@@ -127,6 +150,7 @@ public class DataManager {
 
         History history = checkLoadHistory(dayStr);
         if (history == null) {
+
             return loadFromGank(dayStr).map(new Func1<List<GankItem>, List<GankItem>>() {
                 @Override
                 public List<GankItem> call(List<GankItem> gankItemList) {
@@ -144,7 +168,7 @@ public class DataManager {
      * @param dayStr 日期
      * @return 返回加载到的内容
      */
-    public Observable<List<GankItem>> loadFromGank(String dayStr) {
+    public Observable<List<GankItem>> loadFromGank(final String dayStr) {
         Log.d(TAG, "loadFromGank: " + dayStr);
 
         String[] parts = dayStr.split("/");
@@ -173,9 +197,27 @@ public class DataManager {
                                 gankItemList.addAll(entry.getValue());
                             }
                         }
+                        for (GankItem gankItem: gankItemList) {
+                            gankItem.day = dayStr;
+                        }
                         return gankItemList;
                     }
                 });
+    }
+
+    public void updateLike(GankItem gankItem) {
+        ContentValues item = new ContentValues();
+        item.put(GankDbHelper.Contract.COLUMN_ID, gankItem.id);
+        item.put(GankDbHelper.Contract.COLUMN_CATEGORY, gankItem.type);
+        item.put(GankDbHelper.Contract.COLUMN_DEST, gankItem.desc);
+        item.put(GankDbHelper.Contract.COLUMN_DAY, gankItem.day);
+        item.put(GankDbHelper.Contract.COLUMN_URL, gankItem.url);
+        item.put(GankDbHelper.Contract.COLUMN_WHO, gankItem.who);
+        item.put(GankDbHelper.Contract.COLUMN_LIKE, gankItem.like ? 1 : 0);
+        item.put(GankDbHelper.Contract.COLUMN_IMAGE, gankItem.getImage());
+
+        sqLiteDatabase.update(GankDbHelper.Contract.TABLE_DATA, item,
+                GankDbHelper.Contract.COLUMN_ID + "=?", new String[]{ gankItem.id });
     }
 
     /**
@@ -206,6 +248,8 @@ public class DataManager {
                     int columnType = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_CATEGORY);
                     int columnDay = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_DAY);
                     int columnImage = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_IMAGE);
+                    int columnLike = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_LIKE);
+                    int columnId = cursor.getColumnIndex(GankDbHelper.Contract.COLUMN_ID);
 
                     gankItem.desc = cursor.getString(columnDesc);
                     gankItem.url = cursor.getString(columnUrl);
@@ -213,6 +257,8 @@ public class DataManager {
                     gankItem.type = cursor.getString(columnType);
                     gankItem.day = cursor.getString(columnDay);
                     gankItem.image = cursor.getString(columnImage);
+                    gankItem.like = cursor.getInt(columnLike) != 0;
+                    gankItem.id = cursor.getString(columnId);
                     gankItemList.add(gankItem);
 
                     hasMore = cursor.moveToNext();
@@ -298,6 +344,7 @@ public class DataManager {
             item.put(GankDbHelper.Contract.COLUMN_URL, gankItem.url);
             item.put(GankDbHelper.Contract.COLUMN_WHO, gankItem.who);
             item.put(GankDbHelper.Contract.COLUMN_IMAGE, gankItem.getImage());
+            item.put(GankDbHelper.Contract.COLUMN_LIKE, gankItem.like ? 1 : 0);
             sqLiteDatabase.insert(GankDbHelper.Contract.TABLE_DATA, null, item);
         }
     }
@@ -316,9 +363,13 @@ public class DataManager {
             category.add(gankItem.type);
         }
         for (String item: category) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(GankDbHelper.Contract.COLUMN_CATEGORY, item);
-            sqLiteDatabase.insert(GankDbHelper.Contract.TABLE_CATEGORY, null, contentValues);
+            Cursor cursor = sqLiteDatabase.query(GankDbHelper.Contract.TABLE_CATEGORY, null,
+                    GankDbHelper.Contract.COLUMN_CATEGORY + "=?", new String[]{item}, null, null, null );
+            if (!cursor.moveToFirst()) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(GankDbHelper.Contract.COLUMN_CATEGORY, item);
+                sqLiteDatabase.insert(GankDbHelper.Contract.TABLE_CATEGORY, null, contentValues);
+            }
         }
     }
 

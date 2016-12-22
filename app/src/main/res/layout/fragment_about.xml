@@ -1,0 +1,109 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="12dp"
+    tools:layout_marginTop="56dp"
+    tools:context="com.yiyuanliu.flipgank.fragment.AboutFragment">
+
+    <TextView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:text="Y"
+        android:textSize="48dp"
+        android:layout_margin="24dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:textColor="@color/textColorWhite"
+        android:background="@drawable/bg_circle"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:textColor="@color/textColorSecondary"
+            android:text="by"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:textColor="@color/textColorPrimary"
+            android:text="Yiyuan Liu"/>
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_marginTop="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="120dp">
+
+    <ImageView
+        android:id="@+id/image_github"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/shadow_top"/>
+
+    <View
+        android:id="@+id/click_github"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:background="?selectableItemBackground"/>
+
+    <TextView
+        android:text="Star on Github"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="4dp"
+        android:textSize="20dp"
+        android:textColor="@color/textColorWhite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_marginTop="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="120dp">
+        <ImageView
+            android:id="@+id/image_write"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/shadow_top"/>
+
+        <View
+            android:id="@+id/click_email"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:background="?selectableItemBackground"/>
+
+        <TextView
+            android:text="Email me"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="4dp"
+            android:textSize="20dp"
+            android:textColor="@color/textColorWhite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </FrameLayout>
+
+</LinearLayout>

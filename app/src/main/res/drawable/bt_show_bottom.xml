@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:gravity="center_horizontal|top">
+        <bitmap android:src="@drawable/ic_expand"
+            android:tint="@color/dividerColor"/>
+    </item>
+
+    <item android:drawable="?selectableItemBackground"/>
+</layer-list>

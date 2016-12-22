@@ -1,9 +1,9 @@
-package com.yiyuanliu.flipgank.view;
+package com.yiyuanliu.flipgank.view.flipview;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.icu.text.LocaleDisplayNames;
-import android.support.v7.widget.LinearLayoutManager;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,6 +22,28 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
 
     public FlipLayoutManager(Context context) {
         mMinVy = (int) (context.getResources().getDisplayMetrics().density * MIN_VY);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        SavedState savedState = (SavedState) state;
+        mPosition = savedState.position;
+        mPositionOffset = savedState.positionOffset;
+        mPendingPosition = savedState.pendingPosition;
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        return new SavedState(mPosition, mPositionOffset, mPendingPosition);
+    }
+
+    public boolean onRefreshPage() {
+        return mPosition == 0 && mPositionOffset < 0;
+    }
+
+    public float getRefreshPercent() {
+        int max = (int) (getItemHeightInPositon() / 5 * 2);
+        return - mPositionOffset / (float)max;
     }
 
     public int calculateDistance(View view) {
@@ -79,38 +101,19 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
 
     // 有 bug 继续改
     private void fill(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        final int count = state.getItemCount();
-
         checkPosition(state);
 
         View primary = null;
         View previous = null;
         View next = null;
 
-        for (int i = 0;i < count;i ++) {
-            final View child = getChildAt(i);
-            if (child != null) {
-                int position = getPosition(child);
-                if (position == mPosition) {
-                    primary = child;
-                    detachAndScrapView(child, recycler);
-                } else if (position == mPosition - 1 ) {
-                    previous = child;
-                    detachAndScrapView(child, recycler);
-                } else if (position == mPosition + 1) {
-                    next = child;
-                    detachAndScrapView(child, recycler);
-                } else {
-                    removeAndRecycleView(child, recycler);
-                }
-            }
-        }
+        detachAndScrapAttachedViews(recycler);
 
-        primary = primary != null ? primary : recycler.getViewForPosition(mPosition);
-        if (next == null && mPosition + 1 > 0 && mPosition + 1 < state.getItemCount()) {
+        primary = recycler.getViewForPosition(mPosition);
+        if (mPosition + 1 > 0 && mPosition + 1 < state.getItemCount()) {
             next = recycler.getViewForPosition(mPosition + 1);
         }
-        if (previous == null && mPosition - 1 > 0 && mPosition - 1 < state.getItemCount()) {
+        if (mPosition - 1 > 0 && mPosition - 1 < state.getItemCount()) {
             previous = recycler.getViewForPosition(mPosition - 1);
         }
 
@@ -138,7 +141,7 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
         if (primary instanceof FlipCard && (secondary == null || secondary instanceof FlipCard)) {
             final float percent = (float)mPositionOffset / getItemHeightInPositon();
             if (secondary == null) {
-                ((FlipCard) primary).setState(true, 0);
+                ((FlipCard) primary).setState(true, percent);
             } else {
                 ((FlipCard) secondary).setState(false, percent);
                 ((FlipCard) primary).setState(true, percent);
@@ -151,9 +154,9 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
     private void checkPosition(RecyclerView.State state) {
         final int itemHeight = getItemHeightInPositon();
         final int total = mPosition * itemHeight + mPositionOffset;
-        final int max = (state.getItemCount() - 1) * itemHeight;
+        final int max = (state.getItemCount() - 1) * itemHeight + itemHeight / 5 * 2;
 
-        int pos = Math.max(0, Math.min(total, max));
+        int pos = Math.max(-itemHeight / 5 * 2, Math.min(total, max));
         mPosition = Math.round(pos / (float)itemHeight);
         mPosition = mPosition >= 0 ? mPosition : 0;
         mPositionOffset = (int) (pos - mPosition * itemHeight);
@@ -193,7 +196,6 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
         startSmoothScroll(scroller);
     }
 
-
     @Override
     public PointF computeScrollVectorForPosition(int targetPosition) {
         int dir = 0;
@@ -223,7 +225,11 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
     }
 
     private int getItemHeightInPositon() {
-        return getHeight() / 2;
+        return getHeight() * 2 / 3;
+    }
+
+    public boolean shouldLoadMore() {
+        return getItemCount() - mPosition < 3;
     }
 
     private class FlipScroller extends LinearSmoothScroller {
@@ -246,5 +252,47 @@ public class FlipLayoutManager extends RecyclerView.LayoutManager implements Rec
         public int calculateDxToMakeVisible(View view, int snapPreference) {
             return 0;
         }
+    }
+
+    private static class SavedState implements Parcelable {
+        private int position;
+        private int positionOffset;
+        private int pendingPosition;
+
+        SavedState(int position, int positionOffset, int pendingPosition) {
+            this.position = position;
+            this.positionOffset = positionOffset;
+            this.pendingPosition = pendingPosition;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(position);
+            dest.writeInt(positionOffset);
+            dest.writeInt(pendingPosition);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = new Parcelable.Creator<SavedState>() {
+
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                final int position = source.readInt();
+                final int positionOffset = source.readInt();
+                final int pendingPosition = source.readInt();
+                SavedState savedState = new SavedState(position, positionOffset, pendingPosition);
+                return savedState;
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }

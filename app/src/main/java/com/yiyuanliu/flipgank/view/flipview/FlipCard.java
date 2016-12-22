@@ -1,4 +1,4 @@
-package com.yiyuanliu.flipgank.view;
+package com.yiyuanliu.flipgank.view.flipview;
 
 import android.content.Context;
 import android.graphics.Camera;
@@ -13,11 +13,9 @@ import android.widget.FrameLayout;
  */
 
 public class FlipCard extends FrameLayout {
+
     private static final String TAG = "FlipCard";
 
-    private static final int SCRIM_COLOR = 0x20000000;
-
-    private int mScrimColor = SCRIM_COLOR;
     private Paint mScrimPaint;
 
     private Camera mCamera;
@@ -87,12 +85,11 @@ public class FlipCard extends FrameLayout {
             canvas.concat(mMatrix);
             super.draw(canvas);
 
-            final int scrimColor = getScrimColor(mScrimColor, percent * 2);
-            mScrimPaint.setColor(scrimColor);
+            mScrimPaint.setColor(0x08000000);
             canvas.drawRect(0, 0, width, height, mScrimPaint);
         } else {
             // draw shadow for underground view
-            final int scrimColor = getScrimColor(mScrimColor, 1 - percent * 2);
+            final int scrimColor = (int) (0xff * (1 - percent * 2)) << 24;
             mScrimPaint.setColor(scrimColor);
 
             if (mPercent < 0) {
@@ -106,11 +103,4 @@ public class FlipCard extends FrameLayout {
         }
     }
 
-    private static int getScrimColor(int baseColor, float percent) {
-        final int baseAlpha = (baseColor & 0xff000000) >>> 24;
-        int imag = (int) (baseAlpha * percent);
-        int color = imag << 24 | (baseAlpha & 0xffffff);
-
-        return color;
-    }
 }

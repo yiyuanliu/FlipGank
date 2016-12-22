@@ -21,6 +21,7 @@ public class GankDbHelper extends SQLiteOpenHelper {
         public static final String COLUMN_DAY = "day";
         public static final String COLUMN_IMAGE = "image";
         public static final String COLUMN_CATEGORY = "category_name";
+        public static final String COLUMN_LIKE = "like";
 
         public static final String CREATE_TABLE_DATA = "CREATE TABLE " + TABLE_DATA + " ( "
                 + COLUMN_ID + " TEXT PRIMARY KEY, "
@@ -29,6 +30,7 @@ public class GankDbHelper extends SQLiteOpenHelper {
                 + COLUMN_CATEGORY + " TEXT, "
                 + COLUMN_WHO + " TEXT, "
                 + COLUMN_IMAGE + " TEXT, "
+                + COLUMN_LIKE + " INTEGER, "
                 + COLUMN_DAY + " TEXT " + " )";
 
         public static final String TABLE_CATEGORY = "category";

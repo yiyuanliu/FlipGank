@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_category"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.yiyuanliu.flipgank.activity.CategoryActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/colorWhite">
+
+        <ImageButton
+            android:id="@+id/back"
+            android:clickable="true"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center_vertical"
+            android:padding="6dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back_24dp"
+            android:layout_marginLeft="8dp"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:gravity="center_vertical"
+            android:textSize="22dp"
+            android:textColor="@color/textColorPrimary"
+            tools:text="Android"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_marginTop="56dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <include
+        android:layout_height="1px"
+        android:layout_width="match_parent"
+        android:layout_marginTop="56dp"
+        layout="@layout/layout_divider_hor" />
+
+    <FrameLayout
+        android:id="@+id/scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:clickable="true"
+        tools:visibility="visible"
+        android:background="#80000000">
+        <LinearLayout
+            android:id="@+id/info"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_info"
+            android:padding="12dp"
+            android:layout_marginTop="64dp"
+            android:theme="@style/AppTheme.Black">
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="8dp"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:tint="@color/textColorWhite"/>
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:text="加载中..."/>
+        </LinearLayout>
+    </FrameLayout>
+
+
+</FrameLayout>

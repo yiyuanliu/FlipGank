@@ -6,10 +6,11 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:statusBarColor">@color/statusBarColor</item>
 
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
+        <item name="android:windowAnimationStyle">@style/animation</item>
     </style>
 
 
@@ -32,4 +33,25 @@
         <item name="android:textColor">@color/textColorSecondary</item>
     </style>
 
+    <style name="AppTheme.Black">
+        <item name="colorPrimary">@color/colorBlack</item>
+        <item name="colorPrimaryDark">@color/colorBlack</item>
+        <item name="colorAccent">@color/colorWhite</item>
+    </style>
+
+    <style name="AppTheme.White">
+        <item name="colorPrimary">@color/colorWhite</item>
+        <item name="colorPrimaryDark">@color/colorWhite</item>
+        <item name="colorAccent">@color/colorBlack</item>
+    </style>
+
+    <style name="animation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/left_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/anim_scale_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/anim_scale_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/left_out</item>
+    </style>
+
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#101010</color>
 </resources>

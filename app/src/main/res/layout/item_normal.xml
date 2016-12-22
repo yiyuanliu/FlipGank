@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.yiyuanliu.flipgank.view.NormalItem xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="160dp"
+    android:paddingTop="8dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingBottom="4dp"
+    android:clickable="true"
+    android:background="?selectableItemBackground"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginBottom="36dp">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="18dp"
+            android:lines="3"
+            android:textColor="@color/textColorPrimary"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.2"
+            tools:text="@string/test_long_title"/>
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="100dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="-36dp"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            tools:src="#F0F0F0"/>
+
+        <ImageButton
+            android:id="@+id/show_bottom"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="right"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_expand"
+            android:tint="@color/dividerColor"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/type"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_gravity="bottom"
+        android:gravity="center_vertical"
+        android:textSize="14dp"
+        android:textColor="@color/textColorSecondary"
+        tools:text="Android"/>
+
+    <ImageButton
+        android:id="@+id/like"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="right|bottom"
+        android:background="?selectableItemBackgroundBorderless"
+        android:src="@drawable/bt_like"
+        android:clickable="true"/>
+
+</com.yiyuanliu.flipgank.view.NormalItem>
