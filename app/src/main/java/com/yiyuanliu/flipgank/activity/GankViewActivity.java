@@ -86,6 +86,12 @@ public class GankViewActivity extends BaseActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        mWebView.destroy();
+        super.onDestroy();
+    }
+
+    @Override
     public void onBackPressed() {
         if (mWebView.canGoBack()) {
             mWebView.goBack();

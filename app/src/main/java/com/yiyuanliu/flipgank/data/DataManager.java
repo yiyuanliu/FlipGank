@@ -4,11 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.icu.util.Calendar;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -21,12 +20,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
-import rx.subjects.Subject;
 
 /**
  * Created by YiyuanLiu on 2016/12/16.
  */
-
 public class DataManager {
     private static final String TAG = "DataManager";
 
@@ -45,13 +42,11 @@ public class DataManager {
     }
 
     private DataManager(Context context) {
-        this.context = context.getApplicationContext();
-        gankDbHelper = new GankDbHelper(this.context);
+        Context context1 = context.getApplicationContext();
+        GankDbHelper gankDbHelper = new GankDbHelper(context1);
         sqLiteDatabase = gankDbHelper.getWritableDatabase();
     }
 
-    private Context context;
-    private GankDbHelper gankDbHelper;
     private SQLiteDatabase sqLiteDatabase;
     private Api api;
 
@@ -73,6 +68,8 @@ public class DataManager {
                 if (!subscriber.isUnsubscribed()) {
                     subscriber.onNext(categorys);
                 }
+
+                cursor.close();
             }
         });
     }
@@ -81,7 +78,7 @@ public class DataManager {
      * 从当前时间加载数据
      * 调用者应通过返回数据中的时间判断是否有更新的内容
      *
-     * @return
+     * @return Observable
      */
     public Observable<List<GankItem>> loadNew() {
         return loadFromDay(getToday());
@@ -94,10 +91,10 @@ public class DataManager {
      * 如果返回的数据为空，意味着已经没有更多内容
      *
      * @param lastLoaded 上次加载到的日期，用于分页加载
-     * @return
+     * @return Observable
      */
     public Observable<List<GankItem>> loadMore(String lastLoaded) {
-        String day = null;
+        String day;
         if (lastLoaded == null) {
             History history = getLatestUpdate(true);
             if (history == null) {
@@ -118,7 +115,6 @@ public class DataManager {
      * 如果没有内容，加载前一天的内容,如果返回的数据为空，意味着日期以前已经没有更多内容
      *
      * @param day 加载日期
-     * @param isNew 加载类型
      */
     private Observable<List<GankItem>> loadFromDay(final String day) {
         Log.d(TAG, "loadFromDay: " + day);
@@ -142,8 +138,8 @@ public class DataManager {
     /**
      * 加载某一天的数据，首先检查数据库，否则从网络中加载并更新数据库
      *
-     * @param dayStr
-     * @return
+     * @param dayStr 日期
+     * @return Observable
      */
     private Observable<List<GankItem>> load(final String dayStr) {
         Log.d(TAG, "load: " + dayStr);
@@ -168,7 +164,7 @@ public class DataManager {
      * @param dayStr 日期
      * @return 返回加载到的内容
      */
-    public Observable<List<GankItem>> loadFromGank(final String dayStr) {
+    private Observable<List<GankItem>> loadFromGank(final String dayStr) {
         Log.d(TAG, "loadFromGank: " + dayStr);
 
         String[] parts = dayStr.split("/");
@@ -191,7 +187,7 @@ public class DataManager {
                         if (gankResponse.error) {
                             throw new RuntimeException("gank error");
                         }
-                        List<GankItem> gankItemList = new ArrayList<GankItem>();
+                        List<GankItem> gankItemList = new ArrayList<>();
                         if (gankResponse.hasData()) {
                             for (Map.Entry<String, List<GankItem>> entry: gankResponse.results.entrySet()) {
                                 gankItemList.addAll(entry.getValue());
@@ -269,6 +265,8 @@ public class DataManager {
                     subscriber.onCompleted();
                 }
 
+                cursor.close();
+
                 Log.d(TAG, "call: end " + day);
             }
         });
@@ -304,6 +302,8 @@ public class DataManager {
 
             hasMore = cursor.moveToNext();
         }
+
+        cursor.close();
 
         return ans;
     }
@@ -370,6 +370,8 @@ public class DataManager {
                 contentValues.put(GankDbHelper.Contract.COLUMN_CATEGORY, item);
                 sqLiteDatabase.insert(GankDbHelper.Contract.TABLE_CATEGORY, null, contentValues);
             }
+
+            cursor.close();
         }
     }
 
@@ -401,20 +403,22 @@ public class DataManager {
 
             history.day = cursor.getString(columnDay);
             history.hasData = cursor.getInt(columnHasData) == 1;
+            cursor.close();
 
             return history;
         } else {
+            cursor.close();
             return null;
         }
     }
 
-    private static final boolean isToday(String dayStr) {
+    private static boolean isToday(String dayStr) {
         int[] dayInt = dayStr2Int(dayStr);
 
         return isToday(dayInt[0], dayInt[1], dayInt[2]);
     }
 
-    private static final boolean isToday(int year, int month, int day) {
+    private static boolean isToday(int year, int month, int day) {
         Calendar calendar = Calendar.getInstance();
         int yearToday = calendar.get(Calendar.YEAR);
         int monthToday = calendar.get(Calendar.MONTH) + 1;
@@ -423,7 +427,7 @@ public class DataManager {
         return year == yearToday && monthToday == month && dayToday == day;
     }
 
-    private static final int[] dayStr2Int(String dayStr) {
+    private static int[] dayStr2Int(String dayStr) {
         String[] parts = dayStr.split("/");
         int year = Integer.valueOf(parts[0]);
         int month = Integer.valueOf(parts[1]);
@@ -432,7 +436,7 @@ public class DataManager {
         return new int[]{year, month, day};
     }
 
-    private static final String dayInt2Str(int year, int month, int day) {
+    private static String dayInt2Str(int year, int month, int day) {
         return year + "/" + month + "/" + day;
     }
 
@@ -442,7 +446,7 @@ public class DataManager {
      * 获取前一天的日期字符串, 例如输入 2016/12/16
      * @return 前一天的时间 2016/12/15
      */
-    private static final String dayBack(String dayStr) {
+    private static String dayBack(String dayStr) {
         int[] dayInts = dayStr2Int(dayStr);
         Calendar calendar = Calendar.getInstance();
         calendar.set(dayInts[0], dayInts[1] - 1, dayInts[2]);
@@ -454,7 +458,7 @@ public class DataManager {
         return dayInt2Str(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
     }
 
-    private static final String dayNext(String dayStr) {
+    private static String dayNext(String dayStr) {
         int[] dayInts = dayStr2Int(dayStr);
         Calendar calendar = Calendar.getInstance();
         calendar.set(dayInts[0], dayInts[1] - 1, dayInts[2]);
@@ -466,17 +470,17 @@ public class DataManager {
         return dayInt2Str(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
     }
 
-    private static final String getToday() {
+    private static String getToday() {
         Calendar calendar = Calendar.getInstance();
         return dayInt2Str(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
     }
 
     /**
      * gank.io 最早的时间应该是 2015/05/18,
-     * @param day
+     * @param dayStr 日期
      * @return 是否超过了 gank 的初始时间
      */
-    private static final boolean isOver(String dayStr) {
+    private static boolean isOver(String dayStr) {
         int[] day = dayStr2Int(dayStr);
         Calendar gankStart = Calendar.getInstance();
         gankStart.set(2015, 4, 18);

@@ -18,6 +18,8 @@ import com.yiyuanliu.flipgank.data.GankItem;
 import com.yiyuanliu.flipgank.view.GankItemView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,6 +63,7 @@ public class GankAdapter extends RecyclerView.Adapter implements GankItemView.Li
 
     public void addData(List<GankItem> gankItemList) {
         gankItemList.addAll(gankItems);
+        gankItems.clear();
 
         FirstPage bigImagePage = FirstPage.gen(gankItemList);
         if (bigImagePage != null) {
@@ -296,7 +299,7 @@ public class GankAdapter extends RecyclerView.Adapter implements GankItemView.Li
             int size = gankItemList.size() > 4 ? 4 : gankItemList.size();
             GankItem[] items = new GankItem[size];
             gankItemList.subList(0, size).toArray(items);
-            gankItemList.removeAll(gankItemList.subList(0, size));
+            gankItemList.removeAll(Arrays.asList(items));
 
             NormalPage normalPage = new NormalPage();
             normalPage.items = items;
